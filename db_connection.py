@@ -7,15 +7,21 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 import logging
 import traceback
+from configparser import ConfigParser
 
+config_object = ConfigParser()
+config_object.read("config.ini")
+database = config_object["CREDENTIALS_DATABASE"]
 
 logger = logging.getLogger(__name__)
 
-DATABASE_URL = 'postgresql://{}:{}@{}/{}?sslmode={}'.format("tirth", "password", "localhost", "personicletest", 'prefer')
+DATABASE_URL = 'postgresql://{}:{}@{}:{}/{}?sslmode={}'.format(database['USERNAME'], database['PASSWORD'],database['HOST'],database['NAME'], 'prefer')
 database = databases.Database(DATABASE_URL)
 
 metadata = sqlalchemy.MetaData()
-
+# engine = sqlalchemy.create_engine("postgresql://{username}:{password}@{dbhost}/{dbname}".format(username=database['USERNAME'], password=database['PASSWORD'],
+#                                                                                                         dbhost=database['HOST'], dbname=database['NAME']))
+  
 engine = sqlalchemy.create_engine(
     DATABASE_URL, pool_size=3, max_overflow=0
 )
