@@ -15,7 +15,7 @@ database = config_object["CREDENTIALS_DATABASE"]
 
 logger = logging.getLogger(__name__)
 
-DATABASE_URL = 'postgresql://{}:{}@{}:{}/{}?sslmode={}'.format(database['USERNAME'], database['PASSWORD'],database['HOST'],database['NAME'], 'prefer')
+DATABASE_URL = 'postgresql://{}:{}@{}/{}?sslmode={}'.format(database['USERNAME'], database['PASSWORD'],database['HOST'],database['NAME'], 'prefer')
 database = databases.Database(DATABASE_URL)
 
 metadata = sqlalchemy.MetaData()
