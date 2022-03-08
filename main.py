@@ -102,3 +102,38 @@ async def get_data(request: Request, user_id:str, datatype: str, startTime=str,e
 @app.get('/')
 async def get_data():
     return {"message": "Hello from personicle"}
+
+@app.get("/request/events")
+async def get_events_data(request: Request, user_id:str, startTime: str,endTime: str, source: Optional[str] = None, event_type: Optional[List[str]]=None, authorization = Header(None),skip: int = 0, take: int = 500):
+    try:
+        if True or await is_access_token_valid(authorization.split("Bearer ")[1]):
+            try:
+                # stream_information = match_event_dictionary(event_type)
+                # table_name = stream_information['TableName']
+                table_name = "personal_events"
+                model_class = generate_table_class(table_name, base_schema["event_schema.avsc"])
+
+                if event_type is not None and source is not None:
+                    query = (select(model_class).where((model_class.user_id == user_id) & (model_class.source == source) & 
+                    (model_class.start_time.between(datetime.strptime(startTime,'%Y-%m-%d %H:%M:%S.%f'),datetime.strptime(endTime,'%Y-%m-%d %H:%M:%S.%f'))) & 
+                    (model_class.event_name == event_type)))
+                elif event_type is not None:
+                    query = (select(model_class).where((model_class.user_id == user_id) &  
+                    (model_class.start_time.between(datetime.strptime(startTime,'%Y-%m-%d %H:%M:%S.%f'),datetime.strptime(endTime,'%Y-%m-%d %H:%M:%S.%f'))) & 
+                    (model_class.event_name == event_type)))
+                elif source is not None:
+                    query = (select(model_class).where((model_class.user_id == user_id) &  (model_class.source == source) & 
+                    (model_class.start_time.between(datetime.strptime(startTime,'%Y-%m-%d %H:%M:%S.%f'),datetime.strptime(endTime,'%Y-%m-%d %H:%M:%S.%f')))))
+                else:
+                    query = (select(model_class).where((model_class.user_id == user_id) &
+                    (model_class.start_time.between(datetime.strptime(startTime,'%Y-%m-%d %H:%M:%S.%f'),datetime.strptime(endTime,'%Y-%m-%d %H:%M:%S.%f')))))
+                    
+
+                return await database.fetch_all(query)
+            except Exception as e:
+                print(e)
+                return "Invalid request", 422
+        else:
+            return JSONResponse(status_code=status.HTTP_401_UNAUTHORIZED, content="Invalid Bearer token")
+    except Exception as e :
+        return JSONResponse(status_code=status.HTTP_401_UNAUTHORIZED, content="Bearer token not present in request")
