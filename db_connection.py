@@ -8,6 +8,7 @@ from sqlalchemy.orm import sessionmaker
 import logging
 import traceback
 from configparser import ConfigParser
+import copy
 
 config_object = ConfigParser()
 config_object.read("config.ini")
@@ -34,7 +35,7 @@ def generate_table_class(table_name: str, base_schema: dict):
     try:
         base_schema['__tablename__'] = table_name
         base_schema['__table_args__'] = {'extend_existing': True}
-        generated_model = type(table_name, (Base, ), base_schema)
+        generated_model = type(table_name, (Base, ), copy.deepcopy(base_schema))
         generated_model.__table__.create(bind=engine, checkfirst=True)
     except Exception as e:
         logger.error(traceback.format_exc())
