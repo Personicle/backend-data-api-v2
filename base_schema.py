@@ -26,3 +26,7 @@ base_schema = {
         "confidence": Column(String, default=None)
         }
 }
+
+base_schema_events = {
+    
+}
