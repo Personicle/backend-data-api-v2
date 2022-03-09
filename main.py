@@ -11,13 +11,15 @@ from base_schema import base_schema
 from sqlalchemy import select
 from fastapi.security import OAuth2PasswordBearer
 from configparser import ConfigParser
-import httpx
 from okta_jwt.jwt import validate_token as validate_locally
 from okta_jwt_verifier import AccessTokenVerifier, IDTokenVerifier
 from fastapi.responses import JSONResponse
-config_object = ConfigParser()
-config_object.read("config.ini")
-okta = config_object["OKTA"]
+
+from config import OKTA_CONFIG
+
+# config_object = ConfigParser()
+# config_object.read("config.ini")
+# OKTA_CONFIG = config_object["OKTA"]
 
 import logging
 from logging.config import fileConfig
@@ -46,7 +48,7 @@ with open(data_dict_path, 'r') as fi:
 # oauth2_scheme = OAuth2PasswordBearer(tokenUrl='token')
 
 async def is_access_token_valid(token):
-    jwt_verifier = AccessTokenVerifier(issuer="{}".format(okta["ISSUER"]), audience='api://default')
+    jwt_verifier = AccessTokenVerifier(issuer="{}".format(OKTA_CONFIG["ISSUER"]), audience='api://default')
     try:
         await jwt_verifier.verify(token)
         print("here")
