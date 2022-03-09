@@ -22,8 +22,10 @@ from config import OKTA_CONFIG
 # OKTA_CONFIG = config_object["OKTA"]
 
 import logging
-from logging.config import fileConfig
-fileConfig("logging.cfg")
+
+if os.environ.get("FILE_LOGGING", '0') == '1':
+    from logging.config import fileConfig
+    fileConfig("logging.cfg")
 
 LOG = logging.getLogger(__name__)
 
