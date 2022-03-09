@@ -10,14 +10,12 @@ import traceback
 from configparser import ConfigParser
 import copy
 
-config_object = ConfigParser()
-config_object.read("config.ini")
-database = config_object["CREDENTIALS_DATABASE"]
+from config import DB_CONFIG
 
 logger = logging.getLogger(__name__)
 
 # DATABASE_URL = 'postgresql://{}:{}@{}/{}?sslmode={}'.format("tirth", "password", "localhost", "personicletest", 'prefer')
-DATABASE_URL = 'postgresql://{}:{}@{}/{}?sslmode={}'.format(database['USERNAME'], database['PASSWORD'],database['HOST'],database['NAME'], 'prefer')
+DATABASE_URL = 'postgresql://{}:{}@{}/{}?sslmode={}'.format(DB_CONFIG['USERNAME'], DB_CONFIG['PASSWORD'],DB_CONFIG['HOST'],DB_CONFIG['NAME'], 'prefer')
 database = databases.Database(DATABASE_URL)
 
 metadata = sqlalchemy.MetaData()
