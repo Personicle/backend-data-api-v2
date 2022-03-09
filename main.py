@@ -87,6 +87,10 @@ async def startup():
 async def shutdown():
     await database.disconnect()
 
+@app.get("/")
+async def test_connection(request: Request):
+    return "Testing data apis"
+
 @app.get("/request")
 async def get_data(request: Request, user_id:str, datatype: str, startTime=str,endTime=str, source: Optional[str] = None, authorization = Header(None),skip: int = 0, take: int = 500):
     try:
