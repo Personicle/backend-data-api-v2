@@ -1,4 +1,6 @@
+from inspect import trace
 from typing import List, Optional, Text
+from urllib.parse import uses_fragment
 from fastapi import FastAPI, status, Request, HTTPException, Depends, Header
 from fastapi.middleware.cors import CORSMiddleware
 import os
@@ -9,13 +11,24 @@ from base_schema import base_schema
 from sqlalchemy import select
 from fastapi.security import OAuth2PasswordBearer
 from configparser import ConfigParser
-import httpx
 from okta_jwt.jwt import validate_token as validate_locally
 from okta_jwt_verifier import AccessTokenVerifier, IDTokenVerifier
 from fastapi.responses import JSONResponse
-config_object = ConfigParser()
-config_object.read("config.ini")
-okta = config_object["OKTA"]
+
+from config import OKTA_CONFIG
+
+# config_object = ConfigParser()
+# config_object.read("config.ini")
+# OKTA_CONFIG = config_object["OKTA"]
+
+import logging
+
+if os.environ.get("FILE_LOGGING", '0') == '1':
+    from logging.config import fileConfig
+    fileConfig("logging.cfg")
+
+LOG = logging.getLogger(__name__)
+
 
 app = FastAPI(title="Personicle backend data api")
 
@@ -37,7 +50,7 @@ with open(data_dict_path, 'r') as fi:
 # oauth2_scheme = OAuth2PasswordBearer(tokenUrl='token')
 
 async def is_access_token_valid(token):
-    jwt_verifier = AccessTokenVerifier(issuer="{}".format(okta["ISSUER"]), audience='api://default')
+    jwt_verifier = AccessTokenVerifier(issuer="{}".format(OKTA_CONFIG["ISSUER"]), audience='api://default')
     try:
         await jwt_verifier.verify(token)
         print("here")
@@ -74,6 +87,10 @@ async def startup():
 async def shutdown():
     await database.disconnect()
 
+@app.get("/")
+async def test_connection(request: Request):
+    return "Testing data apis"
+
 @app.get("/request")
 async def get_data(request: Request, user_id:str, datatype: str, startTime=str,endTime=str, source: Optional[str] = None, authorization = Header(None),skip: int = 0, take: int = 500):
     try:
@@ -93,6 +110,7 @@ async def get_data(request: Request, user_id:str, datatype: str, startTime=str,e
                 return await database.fetch_all(query)
             except Exception as e:
                 print(e)
+                LOG.error(traceback.format_exc())
                 return "Invalid request", 422
         else:
             return JSONResponse(status_code=status.HTTP_401_UNAUTHORIZED, content="Invalid Bearer token")
@@ -104,25 +122,30 @@ async def get_data():
     return {"message": "Hello from personicle"}
 
 @app.get("/request/events")
-async def get_events_data(request: Request, user_id:str, startTime: str,endTime: str, source: Optional[str] = None, event_type: Optional[List[str]]=None, authorization = Header(None),skip: int = 0, take: int = 500):
+async def get_events_data(request: Request, user_id:str, startTime: str,endTime: str, source: Optional[str] = None, event_type: Optional[str]=None, authorization = Header(None),skip: int = 0, take: int = 500):
     try:
-        if True or await is_access_token_valid(authorization.split("Bearer ")[1]):
+        if await is_access_token_valid(authorization.split("Bearer ")[1]):
             try:
                 # stream_information = match_event_dictionary(event_type)
                 # table_name = stream_information['TableName']
                 table_name = "personal_events"
                 model_class = generate_table_class(table_name, base_schema["event_schema.avsc"])
 
-                if event_type is not None and source is not None:
-                    query = (select(model_class).where((model_class.user_id == user_id) & (model_class.source == source) & 
+                sources = source.split(";") if source is not None else None
+                event_types = event_type.split(";") if event_type is not None else None
+
+                LOG.info("Event request received for user: {}, from: {}, to: {}, source: {}, event_type: {}".format(user_id, startTime, endTime, source, event_type))
+
+                if event_types is not None and sources is not None:
+                    query = (select(model_class).where((model_class.user_id == user_id) & (model_class.source.in_(sources)) & 
                     (model_class.start_time.between(datetime.strptime(startTime,'%Y-%m-%d %H:%M:%S.%f'),datetime.strptime(endTime,'%Y-%m-%d %H:%M:%S.%f'))) & 
-                    (model_class.event_name == event_type)))
-                elif event_type is not None:
+                    (model_class.event_name.in_(event_types))))
+                elif event_types is not None:
                     query = (select(model_class).where((model_class.user_id == user_id) &  
                     (model_class.start_time.between(datetime.strptime(startTime,'%Y-%m-%d %H:%M:%S.%f'),datetime.strptime(endTime,'%Y-%m-%d %H:%M:%S.%f'))) & 
-                    (model_class.event_name == event_type)))
-                elif source is not None:
-                    query = (select(model_class).where((model_class.user_id == user_id) &  (model_class.source == source) & 
+                    (model_class.event_name.in_(event_types))))
+                elif sources is not None:
+                    query = (select(model_class).where((model_class.user_id == user_id) &  (model_class.source.in_(sources)) & 
                     (model_class.start_time.between(datetime.strptime(startTime,'%Y-%m-%d %H:%M:%S.%f'),datetime.strptime(endTime,'%Y-%m-%d %H:%M:%S.%f')))))
                 else:
                     query = (select(model_class).where((model_class.user_id == user_id) &
@@ -132,6 +155,7 @@ async def get_events_data(request: Request, user_id:str, startTime: str,endTime:
                 return await database.fetch_all(query)
             except Exception as e:
                 print(e)
+                LOG.error(traceback.format_exc())
                 return "Invalid request", 422
         else:
             return JSONResponse(status_code=status.HTTP_401_UNAUTHORIZED, content="Invalid Bearer token")
