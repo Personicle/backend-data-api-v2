@@ -14,9 +14,10 @@ from configparser import ConfigParser
 from okta_jwt.jwt import validate_token as validate_locally
 from okta_jwt_verifier import AccessTokenVerifier, IDTokenVerifier
 from fastapi.responses import JSONResponse
-
+import httpx
+import asyncio
 from config import OKTA_CONFIG
-
+import requests
 # config_object = ConfigParser()
 # config_object.read("config.ini")
 # OKTA_CONFIG = config_object["OKTA"]
@@ -49,14 +50,6 @@ with open(data_dict_path, 'r') as fi:
 
 # oauth2_scheme = OAuth2PasswordBearer(tokenUrl='token')
 
-async def is_access_token_valid(token):
-    jwt_verifier = AccessTokenVerifier(issuer="{}".format(OKTA_CONFIG["ISSUER"]), audience='api://default')
-    try:
-        await jwt_verifier.verify(token)
-        print("here")
-        return True
-    except Exception:
-        return False
     
 def match_data_dictionary(stream_name):
     """
@@ -94,7 +87,7 @@ async def test_connection(request: Request):
 @app.get("/request")
 async def get_data(request: Request, user_id:str, datatype: str, startTime=str,endTime=str, source: Optional[str] = None, authorization = Header(None),skip: int = 0, take: int = 500):
     try:
-        if await is_access_token_valid(authorization.split("Bearer ")[1]):
+        if await is_authorized(authorization):
             try:
                 stream_information = match_data_dictionary(datatype)
                 table_name = stream_information['TableName']
@@ -121,10 +114,16 @@ async def get_data(request: Request, user_id:str, datatype: str, startTime=str,e
 async def get_data():
     return {"message": "Hello from personicle"}
 
+async def is_authorized(authorization):
+    async with httpx.AsyncClient(verify=False) as client:
+        headers = {'Authorization': f'{authorization}'}
+        authorization = await client.get("https://20.121.8.101:3000/authenticate",headers=headers)
+        return authorization.is_success
+
 @app.get("/request/events")
 async def get_events_data(request: Request, user_id:str, startTime: str,endTime: str, source: Optional[str] = None, event_type: Optional[str]=None, authorization = Header(None),skip: int = 0, take: int = 500):
     try:
-        if await is_access_token_valid(authorization.split("Bearer ")[1]):
+        if await is_authorized(authorization):
             try:
                 # stream_information = match_event_dictionary(event_type)
                 # table_name = stream_information['TableName']
