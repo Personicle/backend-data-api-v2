@@ -12,6 +12,11 @@ To run this server:
 
 #### /request
 - Endpoint for datastreams. 
+- parameters: user_id, datatype, startTime, endTime, source (optional)
+- headers: Authorization
 
 #### /request/events
 - Endpoint for events. 
+- parameters: user_id, startTime, endTime, source (optional), event_type (optional)
+- headers: Authorization
+
