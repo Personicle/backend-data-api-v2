@@ -16,7 +16,7 @@ from okta_jwt_verifier import AccessTokenVerifier, IDTokenVerifier
 from fastapi.responses import JSONResponse
 import httpx
 import asyncio
-from config import OKTA_CONFIG
+from config import PERSONICLE_AUTH_API
 import requests
 # config_object = ConfigParser()
 # config_object.read("config.ini")
@@ -117,7 +117,7 @@ async def get_data():
 async def is_authorized(authorization):
     async with httpx.AsyncClient(verify=False) as client:
         headers = {'Authorization': f'{authorization}'}
-        authorization = await client.get("https://20.121.8.101:3000/authenticate",headers=headers)
+        authorization = await client.get(PERSONICLE_AUTH_API['ENDPOINT'],headers=headers)
         return authorization.is_success
 
 @app.get("/request/events")

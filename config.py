@@ -21,3 +21,4 @@ else:
     config_object.read("config.ini")
     DB_CONFIG = config_object["CREDENTIALS_DATABASE"]
     OKTA_CONFIG = config_object["OKTA"]
+    PERSONICLE_AUTH_API = config_object["PERSONICLE_AUTH_SERVICE"]
