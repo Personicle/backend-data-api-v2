@@ -29,7 +29,7 @@ base_schema = {
         "confidence": Column(String, default=None)
         },
     "event_schema.avsc": {
-        "individual_id": Column(String, primary_key=True),
+        "user_id": Column(String, primary_key=True),
         "start_time": Column(TIMESTAMP, primary_key=True),
         "end_time": Column(TIMESTAMP, primary_key=True),
         "event_name": Column(String, primary_key=True),
