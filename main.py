@@ -115,7 +115,6 @@ async def get_data():
     return {"message": "Hello from personicle"}
 
 async def is_authorized(authorization,user_id):
-    print(authorization)
     async with httpx.AsyncClient(verify=False) as client:
         headers = {'Authorization': f'{authorization}'}
         authorization = await client.get(PERSONICLE_AUTH_API['ENDPOINT']+f"?user_id={user_id}",headers=headers)
