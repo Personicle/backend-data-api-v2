@@ -114,16 +114,19 @@ async def get_data(request: Request, user_id:str, datatype: str, startTime=str,e
 async def get_data():
     return {"message": "Hello from personicle"}
 
-async def is_authorized(authorization):
+async def is_authorized(authorization,user_id):
+    print(authorization)
     async with httpx.AsyncClient(verify=False) as client:
         headers = {'Authorization': f'{authorization}'}
-        authorization = await client.get(PERSONICLE_AUTH_API['ENDPOINT'],headers=headers)
+        authorization = await client.get(PERSONICLE_AUTH_API['ENDPOINT']+f"?user_id={user_id}",headers=headers)
         return authorization.is_success
 
 @app.get("/request/events")
 async def get_events_data(request: Request, user_id:str, startTime: str,endTime: str, source: Optional[str] = None, event_type: Optional[str]=None, authorization = Header(None),skip: int = 0, take: int = 500):
     try:
-        if await is_authorized(authorization):
+        
+        if await is_authorized(authorization,user_id):
+            
             try:
                 # stream_information = match_event_dictionary(event_type)
                 # table_name = stream_information['TableName']
