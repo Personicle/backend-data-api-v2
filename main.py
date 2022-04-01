@@ -56,6 +56,7 @@ def match_data_dictionary(stream_name):
     Match a data type to the personicle data dictionary
     returns the data type information from the data dictionary
     """
+    stream_name = stream_name[:stream_name.rfind('.')]
     data_stream = personicle_data_types_json["com.personicle"]["individual"]["datastreams"][stream_name]
     return data_stream
 
@@ -87,9 +88,14 @@ async def test_connection(request: Request):
 @app.get("/request")
 async def get_data(request: Request, datatype: str, startTime=str,endTime=str, source: Optional[str] = None, authorization = Header(None)):
     try:
-        authorized, user_id = await is_authorized(authorization)
-        if await authorized:
+        authorized, response = await is_authorized(authorization,datatype)
+
+        if response['message'] == 'INVALID_SCOPES':
+            return JSONResponse(status_code=status.HTTP_403_FORBIDDEN, content="You do not have access to requested scopes")
+
+        if  authorized:
             try:
+                user_id = response['user_id']
                 stream_information = match_data_dictionary(datatype)
                 table_name = stream_information['TableName']
                 model_class = generate_table_class(table_name, base_schema[stream_information['base_schema']])
@@ -103,32 +109,42 @@ async def get_data(request: Request, datatype: str, startTime=str,endTime=str, s
 
                 return await database.fetch_all(query)
             except Exception as e:
-                print(e)
+                # print(e)
                 LOG.error(traceback.format_exc())
                 return "Invalid request", 422
         else:
             return JSONResponse(status_code=status.HTTP_401_UNAUTHORIZED, content="Invalid Bearer token")
     except Exception as e :
+        print(e)
         return JSONResponse(status_code=status.HTTP_401_UNAUTHORIZED, content="Bearer token not present in request")
 
-@app.get('/')
-async def get_data():
-    return {"message": "Hello from personicle"}
+# @app.get('/')
+# async def get_data():
+#     return {"message": "Hello from personicle"}
 
-async def is_authorized(authorization):
+async def is_authorized(authorization,datatype):
     async with httpx.AsyncClient(verify=False) as client:
         headers = {'Authorization': f'{authorization}'}
+        params = {'scopes': datatype}
+        # print(params)
         authorization = await client.get(PERSONICLE_AUTH_API['ENDPOINT'],headers=headers)
-        return authorization.is_success, authorization.json()['user_id']
+        # authorization = await client.get("http://127.0.0.1:5000/authenticate",params=params,headers=headers)
+
+        return authorization.is_success, authorization.json()
 
 @app.get("/request/events")
 async def get_events_data(request: Request, startTime: str,endTime: str, source: Optional[str] = None, event_type: Optional[str]=None, authorization = Header(None)):
     try:
-        authorized, user_id = await is_authorized(authorization)
+
+        authorized, response = await is_authorized(authorization,"events.read")
+        if response['message'] == 'INVALID_SCOPES':
+            return JSONResponse(status_code=status.HTTP_403_FORBIDDEN, content="You do not have access to read events")
+
         if authorized:
             try:
                 # stream_information = match_event_dictionary(event_type)
                 # table_name = stream_information['TableName']
+                user_id = response['user_id']
                 table_name = "personal_events"
                 model_class = generate_table_class(table_name, base_schema["event_schema.avsc"])
 
