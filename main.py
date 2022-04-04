@@ -165,7 +165,7 @@ async def get_events_data(request: Request, startTime: str,endTime: str, source:
                     query = (select(model_class).where((model_class.user_id == user_id) &  (model_class.source.in_(sources)) & 
                     (model_class.start_time.between(datetime.strptime(startTime,'%Y-%m-%d %H:%M:%S.%f'),datetime.strptime(endTime,'%Y-%m-%d %H:%M:%S.%f')))))
                 else:
-                    query = (select(model_class).where((model_class.individual_id == user_id) &
+                    query = (select(model_class).where((model_class.user_id == user_id) &
                     (model_class.start_time.between(datetime.strptime(startTime,'%Y-%m-%d %H:%M:%S.%f'),datetime.strptime(endTime,'%Y-%m-%d %H:%M:%S.%f')))))
                     
 
