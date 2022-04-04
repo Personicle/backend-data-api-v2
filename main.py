@@ -56,7 +56,7 @@ def match_data_dictionary(stream_name):
     Match a data type to the personicle data dictionary
     returns the data type information from the data dictionary
     """
-    stream_name = stream_name[:stream_name.rfind('.')]
+    # stream_name = stream_name[:stream_name.rfind('.')]
     data_stream = personicle_data_types_json["com.personicle"]["individual"]["datastreams"][stream_name]
     return data_stream
 
@@ -126,8 +126,8 @@ async def is_authorized(authorization,datatype):
     async with httpx.AsyncClient(verify=False) as client:
         headers = {'Authorization': f'{authorization}'}
         params = {'scopes': datatype}
-        # print(params)
-        authorization = await client.get(PERSONICLE_AUTH_API['ENDPOINT'],headers=headers)
+
+        authorization = await client.get(PERSONICLE_AUTH_API['ENDPOINT'],params=params,headers=headers)
         # authorization = await client.get("http://127.0.0.1:5000/authenticate",params=params,headers=headers)
 
         return authorization.is_success, authorization.json()
@@ -165,13 +165,13 @@ async def get_events_data(request: Request, startTime: str,endTime: str, source:
                     query = (select(model_class).where((model_class.user_id == user_id) &  (model_class.source.in_(sources)) & 
                     (model_class.start_time.between(datetime.strptime(startTime,'%Y-%m-%d %H:%M:%S.%f'),datetime.strptime(endTime,'%Y-%m-%d %H:%M:%S.%f')))))
                 else:
-                    query = (select(model_class).where((model_class.user_id == user_id) &
+                    query = (select(model_class).where((model_class.individual_id == user_id) &
                     (model_class.start_time.between(datetime.strptime(startTime,'%Y-%m-%d %H:%M:%S.%f'),datetime.strptime(endTime,'%Y-%m-%d %H:%M:%S.%f')))))
                     
 
                 return await database.fetch_all(query)
             except Exception as e:
-                print(e)
+                # print(e)
                 LOG.error(traceback.format_exc())
                 return "Invalid request", 422
         else:
