@@ -15,6 +15,9 @@ if os.environ.get('DEV_ENVIRONMENT', 'LOCAL') in ["PRODUCTION", "AZURE_STAGING"]
         "ISSUER": os.environ["OKTA_ISSUER"],
         "AUDIENCE": os.environ["OKTA_AUDIENCE"]
     }
+    PERSONICLE_AUTH_API = {
+        "ENDPOINT": os.environ["PERSONICLE_AUTH_API_ENDPOINT"]
+    }
 
 else:
     config_object = ConfigParser()
