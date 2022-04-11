@@ -1,0 +1,19 @@
+apiVersion : apps/v1
+kind: Deployment
+metadata:
+  name: "personiclecluster-8d69"
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: "personiclecluster-8d69"
+  template:
+    metadata:
+      labels:
+        app: "personiclecluster-8d69"
+    spec:
+      containers:
+        - name: "personiclecluster-8d69"
+          image: "personicleauth.azurecr.io/personiclecluster"
+          ports:
+          - containerPort: 8080
