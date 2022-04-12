@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: personicle-backend-api
-        image: personicleauth.azurecr.io/backend-api
+        image: personicleauth.azurecr.io/personicle-backend-api
         imagePullPolicy: Always
         ports:
         - containerPort: 8080
