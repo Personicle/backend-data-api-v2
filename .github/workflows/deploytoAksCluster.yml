@@ -1,11 +1,4 @@
 on: [push]
-env:
-  DEV_ENVIRONMENT: ${{secrets.DEV_ENVIRONMENT}}
-  DB_HOST: ${{secrets.DB_HOST}}
-  DB_NAME: ${{secrets.DB_NAME}}
-  DB_PASSWORD: ${{secrets.DB_PASSWORD}}
-  DB_USERNAME: ${{secrets.DB_USERNAME}}
-  PERSONICLE_AUTH_API_ENDPOINT: ${{secrets.PERSONICLE_AUTH_API_ENDPOINT}}
   
 jobs:
   build-and-deploy:
