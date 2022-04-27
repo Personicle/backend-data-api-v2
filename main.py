@@ -85,7 +85,7 @@ async def shutdown():
 async def test_connection(request: Request):
     return "Testing data apis"
 
-@app.get("/request")
+@app.get("/datastreams")
 async def get_data(request: Request, datatype: str, startTime=str,endTime=str, source: Optional[str] = None, authorization = Header(None)):
     try:
         authorized, response = await is_authorized(authorization,datatype)
@@ -132,7 +132,7 @@ async def is_authorized(authorization,datatype):
 
         return authorization.is_success, authorization.json()
 
-@app.get("/request/events")
+@app.get("/events")
 async def get_events_data(request: Request, startTime: str,endTime: str, source: Optional[str] = None, event_type: Optional[str]=None, authorization = Header(None)):
     try:
 
