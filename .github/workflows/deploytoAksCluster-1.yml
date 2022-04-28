@@ -42,8 +42,7 @@ jobs:
       with:
         namespace: personicle-services
         manifests: |
-          manifests/deployment-1.yml
-          manifests/service.yml
+          manifests/deployment-service.yml
         images: |
           personicleservices.azurecr.io/backend-data-api:${{ github.sha }}
         imagepullsecrets: |
