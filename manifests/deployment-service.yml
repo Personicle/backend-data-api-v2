@@ -22,27 +22,27 @@ spec:
         - name: USERNAME
           valueFrom:
             secretKeyRef:
-              name: dbsecret
+              name: secrets
               key: USERNAME
         - name: PASSWORD
           valueFrom:
             secretKeyRef:
-              name: dbsecret
+              name: secrets
               key: PASSWORD
         - name: HOST
           valueFrom:
             secretKeyRef:
-              name: dbsecret
+              name: secrets
               key: HOST
         - name: NAME
           valueFrom:
             secretKeyRef:
-              name: dbsecret
+              name: secrets
               key: NAME
         - name: AUTH_ENDPOINT
           valueFrom:
             secretKeyRef:
-              name: dbsecret
+              name: secrets
               key: AUTH_ENDPOINT
 ---
 apiVersion: v1
