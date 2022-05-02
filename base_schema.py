@@ -38,3 +38,7 @@ base_schema = {
         "unique_event_id": Column(UUID(as_uuid=False), default=uuid.uuid4, unique=True)
         }
 }
+
+base_schema_events = {
+    
+}

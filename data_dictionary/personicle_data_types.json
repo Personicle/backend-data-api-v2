@@ -2,7 +2,20 @@
     "com.personicle": {
         "individual": {
             "events": {
-
+                "com.personicle.individuals.events.running":{
+                    "TableName":"personal_events",
+                    "parameters":{
+                        "duration":{
+                            "ValueType":"Integer",
+                            "Unit": "seconds"
+                        },
+                        "source_device":{
+                            "ValueType": "String",
+                            "Unit": "NULL"
+                        }
+                        
+                    }
+                }
             },
             "datastreams": {
                 "com.personicle.individual.datastreams.heartrate": {
