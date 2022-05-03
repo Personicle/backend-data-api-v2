@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: personicle-backend-api
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: personicle-backend-api
+  template:
+    metadata:
+      labels:
+        app: personicle-backend-api
+    spec:
+      containers:
+      - name: personicle-backend-api
+        image: personicleservices.azurecr.io/backend-data-api
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8080
+        env:
+        - name: USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: secrets
+              key: USERNAME
+        - name: PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: secrets
+              key: PASSWORD
+        - name: HOST
+          valueFrom:
+            secretKeyRef:
+              name: secrets
+              key: HOST
+        - name: NAME
+          valueFrom:
+            secretKeyRef:
+              name: secrets
+              key: NAME
+        - name: AUTH_ENDPOINT
+          valueFrom:
+            secretKeyRef:
+              name: secrets
+              key: AUTH_ENDPOINT
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: personicle-backend-api
+spec:
+  ports:
+  - port: 8080
+    name: http2
+    protocol: TCP
+    targetPort: 8080
+  selector:
+    app: personicle-backend-api
