@@ -16,7 +16,7 @@ from okta_jwt_verifier import AccessTokenVerifier, IDTokenVerifier
 from fastapi.responses import JSONResponse
 import httpx
 import copy
-from config import PERSONICLE_AUTH_API
+from config import PERSONICLE_AUTH_API, PERSONICLE_SCHEMA_API
 import requests
 # config_object = ConfigParser()
 # config_object.read("config.ini")
@@ -96,7 +96,12 @@ async def get_data(request: Request, datatype: str, startTime=str,endTime=str, s
         if  authorized:
             try:
                 user_id = response['user_id']
-                stream_information = match_data_dictionary(datatype)
+                # send request to validation server to get datastream info
+                is_success, stream_information = await find_data_schema(authorization, datatype)
+
+                if is_success == False:
+                    return JSONResponse(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, content='Could not match requested data type with data dictionary')
+                # stream_information = match_data_dictionary(datatype)
                 print("{}".format(stream_information))
                 table_name = stream_information['TableName']
                 model_class = generate_table_class(table_name, copy.deepcopy(base_schema[stream_information['base_schema']]))
@@ -122,6 +127,16 @@ async def get_data(request: Request, datatype: str, startTime=str,endTime=str, s
 # @app.get('/')
 # async def get_data():
 #     return {"message": "Hello from personicle"}
+
+async def find_data_schema(authorization, datatype):
+    async with httpx.AsyncClient(verify=False) as client:
+        headers = {'Authorization': f'{authorization}'}
+        params = {'data_type': 'datastream','stream_name': datatype}
+
+        schema_response = await client.get(PERSONICLE_SCHEMA_API['MATCH_DICTIONARY_ENDPOINT'],params=params,headers=headers)
+        # authorization = await client.get("http://127.0.0.1:5000/authenticate",params=params,headers=headers)
+
+        return schema_response.is_success, schema_response.json()
 
 async def is_authorized(authorization,datatype):
     async with httpx.AsyncClient(verify=False) as client:
