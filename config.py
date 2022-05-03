@@ -21,19 +21,19 @@ if os.environ.get('DEV_ENVIRONMENT', 'LOCAL') in ["PRODUCTION", "AZURE_STAGING"]
     }
 
 else:
-    # config_object = ConfigParser()
-    # config_object.read("config.ini")
-    # DB_CONFIG = config_object["CREDENTIALS_DATABASE"]
-    # OKTA_CONFIG = config_object["OKTA"]
-    # PERSONICLE_AUTH_API = config_object["PERSONICLE_AUTH_SERVICE"]
+    config_object = ConfigParser()
+    config_object.read("config.ini")
+    DB_CONFIG = config_object["CREDENTIALS_DATABASE"]
+    OKTA_CONFIG = config_object["OKTA"]
+    PERSONICLE_AUTH_API = config_object["PERSONICLE_AUTH_SERVICE"]
     
-    DB_CONFIG = {
-        "USERNAME" : os.getenv('USERNAME'),
-        "PASSWORD": os.getenv('PASSWORD'),
-        "HOST": os.getenv('HOST'),
-        "NAME": os.getenv('NAME')
-    }
+    # DB_CONFIG = {
+    #     "USERNAME" : os.getenv('USERNAME'),
+    #     "PASSWORD": os.getenv('PASSWORD'),
+    #     "HOST": os.getenv('HOST'),
+    #     "NAME": os.getenv('NAME')
+    # }
 
-    PERSONICLE_AUTH_API = {
-        "ENDPOINT": os.getenv('AUTH_ENDPOINT')
-    }
+    # PERSONICLE_AUTH_API = {
+    #     "ENDPOINT": os.getenv('AUTH_ENDPOINT')
+    # }
