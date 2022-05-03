@@ -15,7 +15,7 @@ from okta_jwt.jwt import validate_token as validate_locally
 from okta_jwt_verifier import AccessTokenVerifier, IDTokenVerifier
 from fastapi.responses import JSONResponse
 import httpx
-import asyncio
+import copy
 from config import PERSONICLE_AUTH_API
 import requests
 # config_object = ConfigParser()
@@ -98,7 +98,7 @@ async def get_data(request: Request, datatype: str, startTime=str,endTime=str, s
                 user_id = response['user_id']
                 stream_information = match_data_dictionary(datatype)
                 table_name = stream_information['TableName']
-                model_class = generate_table_class(table_name, base_schema[stream_information['base_schema']])
+                model_class = generate_table_class(table_name, copy.deepcopy(base_schema[stream_information['base_schema']]))
 
                 # query = (heartrates.select().where(heartrates.c.timestamp.between(datetime.strptime(startTime,'%Y-%m-%dT%H:%M:%S.%f'),datetime.strptime(endTime,'%Y-%m-%dT%H:%M:%S.%f')) 
                 # & (heartrates.c.individual_id == user_id) & (heartrates.c.source == source ))) if source else (heartrates.select().where(heartrates.c.timestamp.between(datetime.strptime(startTime,'%Y-%m-%dT%H:%M:%S.%f'),datetime.strptime(endTime,'%Y-%m-%dT%H:%M:%S.%f')) 
@@ -146,7 +146,7 @@ async def get_events_data(request: Request, startTime: str,endTime: str, source:
                 # table_name = stream_information['TableName']
                 user_id = response['user_id']
                 table_name = "personal_events"
-                model_class = generate_table_class(table_name, base_schema["event_schema.avsc"])
+                model_class = generate_table_class(table_name, copy.deepcopy(base_schema["event_schema.avsc"]))
 
                 sources = source.split(";") if source is not None else None
                 event_types = event_type.split(";") if event_type is not None else None
