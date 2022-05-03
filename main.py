@@ -97,7 +97,7 @@ async def get_data(request: Request, datatype: str, startTime=str,endTime=str, s
             try:
                 user_id = response['user_id']
                 stream_information = match_data_dictionary(datatype)
-                LOG.info("{}".format(stream_information))
+                print("{}".format(stream_information))
                 table_name = stream_information['TableName']
                 model_class = generate_table_class(table_name, copy.deepcopy(base_schema[stream_information['base_schema']]))
 
