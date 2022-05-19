@@ -19,36 +19,61 @@ spec:
         ports:
         - containerPort: 8080
         env:
-        - name: USERNAME
+        - name: DB_USERNAME
           valueFrom:
             secretKeyRef:
               name: secrets
-              key: USERNAME
+              key: DB_USERNAME
         - name: PASSWORD
           valueFrom:
             secretKeyRef:
               name: secrets
               key: PASSWORD
-        - name: HOST
+        - name: DB_HOST
           valueFrom:
             secretKeyRef:
               name: secrets
-              key: HOST
-        - name: NAME
+              key: DB_HOST
+        - name: DB_NAME
           valueFrom:
             secretKeyRef:
               name: secrets
-              key: NAME
-        - name: AUTH_ENDPOINT
+              key: DB_NAME
+        - name: PERSONICLE_AUTH_ENDPOINT
           valueFrom:
             secretKeyRef:
               name: secrets
-              key: AUTH_ENDPOINT
+              key: PERSONICLE_AUTH_ENDPOINT
         - name: DEV_ENVIRONMENT
           valueFrom:
             secretKeyRef:
               name: secrets
               key: DEV_ENVIRONMENT
+        - name: PERSONICLE__API_ENDPOINT
+          valueFrom:
+            secretKeyRef:
+              name: secrets
+              key: PERSONICLE__API_ENDPOINT
+        - name: OKTA_CLIENT_ID
+          valueFrom:
+            secretKeyRef:
+              name: secrets
+              key: OKTA_CLIENT_ID
+        - name: OKTA_CLIENT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: secrets
+              key: OKTA_CLIENT_SECRET
+        - name: OKTA_AUDIENCE
+          valueFrom:
+            secretKeyRef:
+              name: secrets
+              key: OKTA_AUDIENCE
+        - name: OKTA_ISSUER
+          valueFrom:
+            secretKeyRef:
+              name: secrets
+              key: OKTA_ISSUER
 ---
 apiVersion: v1
 kind: Service
