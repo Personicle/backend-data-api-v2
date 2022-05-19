@@ -44,6 +44,11 @@ spec:
             secretKeyRef:
               name: secrets
               key: AUTH_ENDPOINT
+        - name: DEV_ENVIRONMENT
+          valueFrom:
+            secretKeyRef:
+              name: secrets
+              key: DEV_ENVIRONMENT
 ---
 apiVersion: v1
 kind: Service
