@@ -39,11 +39,11 @@ spec:
             secretKeyRef:
               name: secrets
               key: DB_NAME
-        - name: PERSONICLE_AUTH_ENDPOINT
+        - name: PERSONICLE_AUTH_API_ENDPOINT
           valueFrom:
             secretKeyRef:
               name: secrets
-              key: PERSONICLE_AUTH_ENDPOINT
+              key: PERSONICLE_AUTH_API_ENDPOINT
         - name: DEV_ENVIRONMENT
           valueFrom:
             secretKeyRef:
