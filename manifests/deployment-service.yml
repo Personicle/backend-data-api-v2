@@ -24,11 +24,11 @@ spec:
             secretKeyRef:
               name: secrets
               key: DB_USERNAME
-        - name: PASSWORD
+        - name: DB_PASSWORD
           valueFrom:
             secretKeyRef:
               name: secrets
-              key: PASSWORD
+              key: DB_PASSWORD
         - name: DB_HOST
           valueFrom:
             secretKeyRef:
