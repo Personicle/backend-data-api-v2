@@ -21,7 +21,7 @@ if os.environ.get('DEV_ENVIRONMENT', 'LOCAL') in ["PRODUCTION", "AZURE_STAGING"]
     }
 
     PERSONICLE_SCHEMA_API = {
-        "ENDPOINT": os.environ["PERSONICLE__API_ENDPOINT"]
+        "MATCH_DICTIONARY_ENDPOINT": os.environ["PERSONICLE__API_ENDPOINT"]
     }
 
 else:
