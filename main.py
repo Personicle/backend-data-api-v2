@@ -129,7 +129,7 @@ async def get_data(request: Request, datatype: str, startTime=str,endTime=str, s
 #     return {"message": "Hello from personicle"}
 
 async def find_data_schema(authorization, datatype):
-    async with httpx.AsyncClient(verify=False) as client:
+    async with httpx.AsyncClient() as client:
         headers = {'Authorization': f'{authorization}'}
         params = {'data_type': 'datastream','stream_name': datatype}
 
