@@ -135,7 +135,10 @@ async def find_data_schema(authorization, datatype):
 
         schema_response = await client.get(PERSONICLE_SCHEMA_API['MATCH_DICTIONARY_ENDPOINT'],params=params,headers=headers)
         # authorization = await client.get("http://127.0.0.1:5000/authenticate",params=params,headers=headers)
-
+        print(schema_response)
+        print(schema_response.is_success)
+        print(schema_response.json())
+        
         return schema_response.is_success, schema_response.json()
 
 async def is_authorized(authorization,datatype):
