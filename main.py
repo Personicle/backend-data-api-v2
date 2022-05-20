@@ -139,7 +139,7 @@ async def find_data_schema(authorization, datatype):
         return schema_response.is_success, schema_response.json()
 
 async def is_authorized(authorization,datatype):
-    async with httpx.AsyncClient(verify=False) as client:
+    async with httpx.AsyncClient() as client:
         headers = {'Authorization': f'{authorization}'}
         params = {'scopes': datatype}
 
