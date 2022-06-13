@@ -86,10 +86,10 @@ async def test_connection(request: Request):
     return "Testing data apis"
 
 @app.get("/datastreams")
-async def get_data(request: Request, datatype: str, startTime=str,endTime=str, source: Optional[str] = None, authorization = Header(None)):
+async def get_data(request: Request, datatype: str, startTime=str,endTime=str, user_id: Optional[str] = None,source: Optional[str] = None, authorization = Header(None)):
     try:
         authorized, response = await is_authorized(authorization,datatype)
-
+        print(response)
         if response['message'] == 'INVALID_SCOPES':
             return JSONResponse(status_code=status.HTTP_403_FORBIDDEN, content="You do not have access to requested scopes")
 
@@ -134,28 +134,26 @@ async def find_data_schema(authorization, datatype):
         params = {'data_type': 'datastream','stream_name': datatype}
 
         schema_response = await client.get(PERSONICLE_SCHEMA_API['MATCH_DICTIONARY_ENDPOINT'],params=params,headers=headers)
-        # authorization = await client.get("http://127.0.0.1:5000/authenticate",params=params,headers=headers)
+        
         print(schema_response)
         print(schema_response.is_success)
         print(schema_response.json())
         
         return schema_response.is_success, schema_response.json()
 
-async def is_authorized(authorization,datatype):
+async def is_authorized(authorization,scope,user_id):
     async with httpx.AsyncClient() as client:
         headers = {'Authorization': f'{authorization}'}
-        params = {'scopes': datatype}
+        params = {'scopes': scope, 'user_id': user_id}
 
         authorization = await client.get(PERSONICLE_AUTH_API['ENDPOINT'],params=params,headers=headers)
-        # authorization = await client.get("http://127.0.0.1:5000/authenticate",params=params,headers=headers)
-
         return authorization.is_success, authorization.json()
 
 @app.get("/events")
-async def get_events_data(request: Request, startTime: str,endTime: str, source: Optional[str] = None, event_type: Optional[str]=None, authorization = Header(None)):
+async def get_events_data(request: Request, startTime: str,endTime: str, user_id: Optional[str] = None, source: Optional[str] = None, event_type: Optional[str]=None, authorization = Header(None)):
     try:
-
-        authorized, response = await is_authorized(authorization,"events.read")
+        
+        authorized, response = await is_authorized(authorization,"events.read",user_id)
         if response['message'] == 'INVALID_SCOPES':
             return JSONResponse(status_code=status.HTTP_403_FORBIDDEN, content="You do not have access to read events")
 
