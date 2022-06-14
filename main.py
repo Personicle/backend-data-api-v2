@@ -88,7 +88,7 @@ async def test_connection(request: Request):
 @app.get("/datastreams")
 async def get_data(request: Request, datatype: str, startTime=str,endTime=str, user_id: Optional[str] = None,source: Optional[str] = None, authorization = Header(None)):
     try:
-        authorized, response = await is_authorized(authorization,datatype)
+        authorized, response = await is_authorized(authorization,datatype,user_id)
         print(response)
         if response['message'] == 'INVALID_SCOPES':
             return JSONResponse(status_code=status.HTTP_403_FORBIDDEN, content="You do not have access to requested scopes")
