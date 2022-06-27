@@ -29,7 +29,6 @@ jobs:
         then
             echo `kubectl create namespace default`
         fi
-
     - uses: azure/k8s-create-secret@v1
       with:
         namespace: default
