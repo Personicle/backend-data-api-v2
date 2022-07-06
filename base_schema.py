@@ -36,7 +36,15 @@ base_schema = {
         "source": Column(String, primary_key=True),
         "parameters": Column(JSON),
         "unique_event_id": Column(UUID(as_uuid=False), default=uuid.uuid4, unique=True)
-        }
+        },
+     "json_object_datastream_schema.avsc": {
+        "individual_id": Column(String, primary_key=True),
+        "timestamp": Column(TIMESTAMP, primary_key=True),
+        "source": Column(String, primary_key=True),
+        "value": Column(JSON),
+        "unit": Column(String),
+        "confidence": Column(String, default=None)
+    }
 }
 
 base_schema_events = {
