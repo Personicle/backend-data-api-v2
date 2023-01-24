@@ -2,6 +2,7 @@ from sqlalchemy import BigInteger, Column, Float, TIMESTAMP
 from sqlalchemy.types import Integer, Numeric, String
 from sqlalchemy.dialects.postgresql import JSON, UUID
 import uuid
+from datetime import datetime
 
 base_schema = {
     "integer_datastream_schema.avsc": {
@@ -44,6 +45,15 @@ base_schema = {
         "value": Column(JSON),
         "unit": Column(String),
         "confidence": Column(String, default=None)
+    },
+    "metadata_schema": {
+        "individual_id": Column(String, primary_key=True),
+        "event_type": Column(String, primary_key=True),
+        "source": Column(String, primary_key=True),
+        "last_updated": Column(TIMESTAMP, default=datetime.utcnow()),
+        "last_observed": Column(TIMESTAMP),
+        "observed_parameters": Column(JSON),
+        "total_occurences": Column(Numeric)
     }
 }
 

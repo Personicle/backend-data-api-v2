@@ -195,3 +195,51 @@ async def get_events_data(request: Request, startTime: str,endTime: str, user_id
             return JSONResponse(status_code=status.HTTP_401_UNAUTHORIZED, content="Invalid Bearer token")
     except Exception as e :
         return JSONResponse(status_code=status.HTTP_401_UNAUTHORIZED, content="Bearer token not present in request")
+
+
+@app.get("/metadata/events")
+async def get_events_metadata(request: Request, user_id: Optional[str] = None, source: Optional[str] = None, event_type: Optional[str]=None, authorization = Header(None)):
+    try:
+        
+        authorized, response = await is_authorized(authorization,"events.read",user_id)
+        if response['message'] == 'INVALID_SCOPES':
+            return JSONResponse(status_code=status.HTTP_403_FORBIDDEN, content="You do not have access to read events")
+
+        if authorized:
+            try:
+                # stream_information = match_event_dictionary(event_type)
+                # table_name = stream_information['TableName']
+                user_id = response['user_id']
+                table_name = "user_events_metadata"
+                model_class = generate_table_class(table_name, copy.deepcopy(base_schema["metadata_schema"]))
+
+                sources = source.split(";") if source is not None else None
+                event_types = event_type.split(";") if event_type is not None else None
+
+                LOG.info("Event metadata request received for user: {},  source: {}, event_type: {}".format(user_id, source, event_type))
+
+                if event_types is not None and sources is not None:
+                    query = (select(model_class).where((model_class.individual_id == user_id) & (model_class.source.in_(sources)) & 
+                    (model_class.event_type.in_(event_types))))
+                elif event_types is not None:
+                    query = (select(model_class).where((model_class.individual_id == user_id) &  
+                    (model_class.event_name.in_(event_types))))
+                elif sources is not None:
+                    query = (select(model_class).where((model_class.individual_id == user_id) &  (model_class.source.in_(sources))))
+                else:
+                    query = (select(model_class).where((model_class.individual_id == user_id)))
+                    
+
+                return await database.fetch_all(query)
+            except Exception as e:
+                # print(e)
+                LOG.error(traceback.format_exc())
+                return JSONResponse(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, content="Invalid request")
+        else:
+            return JSONResponse(status_code=status.HTTP_401_UNAUTHORIZED, content="Invalid Bearer token")
+    except Exception as e :
+        return JSONResponse(status_code=status.HTTP_401_UNAUTHORIZED, content="Bearer token not present in request")
+
+@app.get("/metadata/datastream")
+async def get_events_metadata(request: Request, user_id: Optional[str] = None, source: Optional[str] = None, data_type: Optional[str]=None, authorization = Header(None)):
+    pass
