@@ -109,9 +109,14 @@ async def get_data(request: Request, datatype: str, startTime=str,endTime=str, u
                 # query = (heartrates.select().where(heartrates.c.timestamp.between(datetime.strptime(startTime,'%Y-%m-%dT%H:%M:%S.%f'),datetime.strptime(endTime,'%Y-%m-%dT%H:%M:%S.%f')) 
                 # & (heartrates.c.individual_id == user_id) & (heartrates.c.source == source ))) if source else (heartrates.select().where(heartrates.c.timestamp.between(datetime.strptime(startTime,'%Y-%m-%dT%H:%M:%S.%f'),datetime.strptime(endTime,'%Y-%m-%dT%H:%M:%S.%f')) 
                 # & (heartrates.c.individual_id == user_id))) 
-                query = (select(model_class).where((model_class.individual_id == user_id) & (model_class.source == source) & 
-                (model_class.timestamp.between(datetime.strptime(startTime,'%Y-%m-%d %H:%M:%S.%f'),datetime.strptime(endTime,'%Y-%m-%d %H:%M:%S.%f'))))) if source else (select(model_class).where((model_class.individual_id == user_id) & 
-                (model_class.timestamp.between(datetime.strptime(startTime,'%Y-%m-%d %H:%M:%S.%f'),datetime.strptime(endTime,'%Y-%m-%d %H:%M:%S.%f'))))) 
+                if ".interval." not in datatype:
+                    query = (select(model_class).where((model_class.individual_id == user_id) & (model_class.source == source) & 
+                    (model_class.timestamp.between(datetime.strptime(startTime,'%Y-%m-%d %H:%M:%S.%f'),datetime.strptime(endTime,'%Y-%m-%d %H:%M:%S.%f'))))) if source else (select(model_class).where((model_class.individual_id == user_id) & 
+                    (model_class.timestamp.between(datetime.strptime(startTime,'%Y-%m-%d %H:%M:%S.%f'),datetime.strptime(endTime,'%Y-%m-%d %H:%M:%S.%f'))))) 
+                else:
+                    query = (select(model_class).where((model_class.individual_id == user_id) & (model_class.source == source) & 
+                    (model_class.start_time.between(datetime.strptime(startTime,'%Y-%m-%d %H:%M:%S.%f'),datetime.strptime(endTime,'%Y-%m-%d %H:%M:%S.%f'))))) if source else (select(model_class).where((model_class.individual_id == user_id) & 
+                    (model_class.start_time.between(datetime.strptime(startTime,'%Y-%m-%d %H:%M:%S.%f'),datetime.strptime(endTime,'%Y-%m-%d %H:%M:%S.%f'))))) 
 
                 return await database.fetch_all(query)
             except Exception as e:
@@ -241,7 +246,7 @@ async def get_events_metadata(request: Request, user_id: Optional[str] = None, s
         return JSONResponse(status_code=status.HTTP_401_UNAUTHORIZED, content="Bearer token not present in request")
 
 @app.get("/metadata/datastream")
-async def get_events_metadata(request: Request, user_id: Optional[str] = None, source: Optional[str] = None, data_type: Optional[str]=None, authorization = Header(None)):
+async def get_datastream_metadata(request: Request, user_id: Optional[str] = None, source: Optional[str] = None, data_type: Optional[str]=None, authorization = Header(None)):
     try:
         
         authorized, response = await is_authorized(authorization,"events.read",user_id)
