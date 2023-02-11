@@ -249,11 +249,11 @@ async def get_events_metadata(request: Request, user_id: Optional[str] = None, s
 async def get_datastream_metadata(request: Request, user_id: Optional[str] = None, source: Optional[str] = None, data_type: Optional[str]=None, authorization = Header(None)):
     try:
         
-        authorized, response = await is_authorized(authorization,"events.read",user_id)
+        authorized, response = await is_authorized(authorization,"events.read",user_id) if request.headers.get("Authorization") != os.environ['METADATA_API_TOKEN']
         if response['message'] == 'INVALID_SCOPES':
             return JSONResponse(status_code=status.HTTP_403_FORBIDDEN, content="You do not have access to read events")
 
-        if authorized:
+        if authorized or request.headers.get("Authorization") == os.environ['METADATA_API_TOKEN'] :
             try:
                 # stream_information = match_event_dictionary(event_type)
                 # table_name = stream_information['TableName']
