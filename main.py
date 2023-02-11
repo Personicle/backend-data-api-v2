@@ -250,9 +250,9 @@ async def get_datastream_metadata(request: Request, user_id: Optional[str] = Non
     try:
         
         authorized, response = await is_authorized(authorization,"events.read",user_id) if request.headers.get("Authorization") != os.environ['METADATA_API_TOKEN'] else False,False
-         if request.headers.get("Authorization") != os.environ['METADATA_API_TOKEN']:
-             if response['message'] == 'INVALID_SCOPES':
-                 return JSONResponse(status_code=status.HTTP_403_FORBIDDEN, content="You do not have access to read events")
+        if request.headers.get("Authorization") != os.environ['METADATA_API_TOKEN']:
+            if response['message'] == 'INVALID_SCOPES':
+                return JSONResponse(status_code=status.HTTP_403_FORBIDDEN, content="You do not have access to read events")
 
         if authorized or request.headers.get("Authorization") == os.environ['METADATA_API_TOKEN'] :
             try:
