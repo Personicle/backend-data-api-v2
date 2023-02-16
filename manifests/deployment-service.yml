@@ -74,6 +74,11 @@ spec:
             secretKeyRef:
               name: secrets
               key: OKTA_ISSUER
+        - name: MATCH_DICTIONARY_ENDPOINT
+          valueFrom:
+            secretKeyRef:
+              name: secrets
+              key: MATCH_DICTIONARY_ENDPOINT
 ---
 apiVersion: v1
 kind: Service
