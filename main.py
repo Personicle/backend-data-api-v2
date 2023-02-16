@@ -281,7 +281,7 @@ async def get_datastream_metadata(request: Request, user_id: Optional[str] = Non
                 res = []
                 async for row in database.iterate(query=query): 
                     params = {'data_type': 'datastream', 'stream_name': row['datastream']}
-                    schema_response = requests.get(os.environ["MATCH_DICTIONARY_ENDPOINT:"],params=params)
+                    schema_response = requests.get(PERSONICLE_SCHEMA_API['MATCH_DICTIONARY_ENDPOINT'],params=params)
                     table_name = schema_response.json()['TableName']
                     temp = {}
                     temp["individual_id"] = row["individual_id"]
