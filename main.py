@@ -277,9 +277,21 @@ async def get_datastream_metadata(request: Request, user_id: Optional[str] = Non
                     query = (select(model_class).where((model_class.individual_id == user_id) &  (model_class.source.in_(sources))))
                 else:
                     query = (select(model_class).where((model_class.individual_id == user_id)))
-                    
+                
+                res = []
+                async for row in database.iterate(query=query): 
+                    params = {'data_type': 'datastream', 'stream_name': row['datastream']}
+                    schema_response = requests.get(os.environ["MATCH_DICTIONARY_ENDPOINT:"],params=params)
+                    table_name = schema_response.json()['TableName']
+                    temp = {}
+                    temp["individual_id"] = row["individual_id"]
+                    temp["source"] = row["source"]
+                    temp["datastream"] = row["datastream"]
+                    temp["last_updated"] = row["last_updated"]
+                    temp["table_name"] = table_name
+                    res.append(temp)
 
-                return await database.fetch_all(query)
+                return res
             except Exception as e:
                 # print(e)
                 LOG.error(traceback.format_exc())
